@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Manager</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h1>Quote List</h1>
+        <ul id="itemList"></ul>
+
+        <button onclick="addItem()">Add Quote</button>
+
+        <h2>Random Quote</h2>
+        <div id="quoteContainer"></div>
+    </div>
+
+    <script>
+        async function fetchItems() {
+            const response = await fetch('/api/items');
+            const items = await response.json();
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = items.map(item => `<li>${item.name} - ${item.description}</li>`).join('');
+        }
+
+        async function fetchRandomQuote() {
+            const response = await fetch('/api/quote');
+            const data = await response.json();
+            const quoteContainer = document.getElementById('quoteContainer');
+            quoteContainer.innerHTML = `<p>${data.content} — ${data.originator.name}</p>`;
+        }
+
+        async function addItem() {
+            const name = prompt('Enter item name:');
+            const description = prompt('Enter item description:');
+            const response = await fetch('/api/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+            const newItem = await response.json();
+            alert(`Item Added: ${newItem.name}`);
+            fetchItems();
+        }
+
+        fetchItems();  // Load items initially
+        fetchRandomQuote();  // Fetch a random quote on page load
+    </script>
+</body>
+</html>
